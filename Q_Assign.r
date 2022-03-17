@@ -28,8 +28,9 @@ MB_Long <- c('MBL1', 'MBL2')
 DE_Long <- c('DEL1', 'DEL2')
 BD_Long <- c('BCB')
 
-AllWQ <- WQ %>%
-  mutate('Stream' = as.factor(ifelse(AllWQ$Site %in% FMSites, "FM",
+AllWQ <- WQ
+
+AllWQ$Stream <- as.factor(ifelse(AllWQ$Site %in% FMSites, "FM",
                           ifelse(AllWQ$Site %in% FMSites_Branch, "FM_Branch",
                           ifelse(AllWQ$Site %in% LFSites, "LF",
                           ifelse(AllWQ$Site %in% MBSites, "MB",
@@ -43,7 +44,7 @@ AllWQ <- WQ %>%
                           ifelse(AllWQ$Site %in% EF_Long, "EF_Long",
                           ifelse(AllWQ$Site %in% MB_Long, "MB_Long",
                           ifelse(AllWQ$Site %in% DE_Long, "DE_Long",
-                          ifelse(AllWQ$Site %in% BD_Long, "BD_Long", "Wells")))))))))))))))))
+                          ifelse(AllWQ$Site %in% BD_Long, "BD_Long", "Wells"))))))))))))))))
 
 
 mainSites = c('0', '1', '2', '4', '5', '6', '8', 
