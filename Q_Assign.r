@@ -81,8 +81,7 @@ WQLoads <- WQJoin %>%
          Ammonium_Load = Ammonium * Q,
          SRP_Load = SRP * Q,
          DOC_Load = DOC * Q) %>%
-  select(1,2,9,11:17) %>%
-  filter(Date > "2021-01-01")
+  select(1,2,9,11:17)
 
 
 WQ_Sums <- WQ %>%
