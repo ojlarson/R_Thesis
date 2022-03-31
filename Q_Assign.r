@@ -2,7 +2,7 @@
 library(readr)
 library(googlesheets4)
 library(tidyverse)
-
+Sample_Q <- read.csv("Sample_Q.csv", fileEncoding = 'UTF-8-BOM')
 WQ_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/1-qtXWXC7bGvOgoFUOhLVjol8GZ5d-jruUyDezfAVw24/edit#gid=0")
 
 WQ <- WQ_sheet %>%
@@ -71,7 +71,7 @@ mainWQ <- mutate(mainWQ, DateStream= paste(as.character(Date), Stream))
 WQ_Q <- mutate(WQ_Q, DateStream= paste(as.character(Date), Stream))
 
 WQJoin <- mainWQ %>% left_join(WQ_Q, by = "DateStream",keep = FALSE) %>%
-  select(1:10,13) %>%
+  select(1:10,14) %>%
   rename(Date = 'Date.x', Stream = 'Stream.x')
 
 WQLoads <- WQJoin %>%
@@ -83,6 +83,8 @@ WQLoads <- WQJoin %>%
          DOC_Load = DOC * Q) %>%
   select(1,2,9,11:17)
 
+write.csv(WQJoin, "WQConcentrations.csv")
+write.csv(WQLoads, "WQLoads.csv")
 
 WQ_Sums <- WQ %>%
   group_by(Site) %>%

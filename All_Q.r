@@ -299,3 +299,6 @@ rm(BDSLow, BDSMed, BDSHigh, BDSAll, BD_MSMTS, BDS_Breaks, BDS_Stage, BDS_Eqs)
 Sample_Q <- rbind(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample)
 rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample)
 
+#Export Sample_Q to csv
+write.csv(Sample_Q, 'Sample_Q.csv')
+
