@@ -118,6 +118,25 @@ Conc_Comp_Sum <- Conc_Comp %>%
             DOC_Lake_Change = -(LB_DOC - BD_DOC),
             Percent_Q_Change = (100*((Lake_Q - Stream_Q)/Stream_Q)))
 
+Conc_Comp_Percent <- Conc_Comp %>%
+  group_by(Date) %>%
+  summarise(TN_Stream_Change = (100*((LB_TN - PB_TN)/PB_TN)),
+            TN_Lake_Change = (100*((BD_TN - LB_TN)/LB_TN)),
+            TP_Stream_Change = (100*((LB_TP - PB_TP)/PB_TP)),
+            TP_Lake_Change = (100*((BD_TP - LB_TP)/LB_TP)),
+            Nitrate_Stream_Change = (100*((LB_Nitrate - PB_Nitrate)/PB_Nitrate)),
+            Nitrate_Lake_Change = (100*((BD_Nitrate - LB_Nitrate)/LB_Nitrate)),
+            SRP_Stream_Change = (100*((LB_SRP - PB_SRP)/PB_SRP)),
+            SRP_Lake_Change = (100*((BD_SRP - LB_SRP)/LB_SRP)),
+            DOC_Stream_Change = (100*((LB_DOC - PB_DOC)/PB_DOC)),
+            DOC_Lake_Change = (100*((BD_DOC - LB_DOC)/LB_DOC)))
+
 rm(Sum_BDC, Sum_BDL, Sum_LBC, Sum_LBL, Sum_PBC, Sum_PBL, Loads_Below_Dam,
    Loads_Lake_Boundary, Loads_Park_Boundary, Conc_Below_Dam, Conc_Lake_Boundary, Conc_Park_Boundary)
 
+write.csv(Conc_Comp, "Conc_Comp.csv")
+write.csv(Conc_Comp_Percent, "Conc_Comp_Percent.csv")
+write.csv(Conc_Comp_Sum, "Conc_Comp_Sum.csv")
+write.csv(Load_Comp, "Load_Comp.csv")
+write.csv(Load_Comp_Percent, "Load_Comp_Percent.csv")
+write.csv(Load_Comp_Sum, "Load_Comp_Sum.csv")
