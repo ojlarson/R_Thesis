@@ -8,6 +8,7 @@ WQ_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/1-qtXWXC7bGvOgoFU
 WQ <- WQ_sheet %>%
   select(2,3,9,10,11,12,13,18) %>%
   mutate(Site=as.character(Site))
+rm(WQ_sheet)
   
 colnames(WQ) <- c('Date', 'Site', 'TN', 'TP', 'Nitrate', 'Ammonium', 'SRP', 'DOC')
 
@@ -28,53 +29,43 @@ MB_Long <- c('MBL1', 'MBL2')
 DE_Long <- c('DEL1', 'DEL2')
 BD_Long <- c('BCB')
 
-AllWQ <- WQ
-
-AllWQ$Stream <- as.factor(ifelse(AllWQ$Site %in% FMSites, "FM",
-                          ifelse(AllWQ$Site %in% FMSites_Branch, "FM_Branch",
-                          ifelse(AllWQ$Site %in% LFSites, "LF",
-                          ifelse(AllWQ$Site %in% MBSites, "MB",
-                          ifelse(AllWQ$Site %in% DESites, "DE",
-                          ifelse(AllWQ$Site %in% EFSites, "EF",
-                          ifelse(AllWQ$Site %in% BDSites, "BD",
-                          ifelse(AllWQ$Site %in% FM_TD, "FM_TD",
-                          ifelse(AllWQ$Site %in% LF_TD, "LF_TD",
-                          ifelse(AllWQ$Site %in% FM_Long, "FM_Long",
-                          ifelse(AllWQ$Site %in% LF_Long, "LF_Long",
-                          ifelse(AllWQ$Site %in% EF_Long, "EF_Long",
-                          ifelse(AllWQ$Site %in% MB_Long, "MB_Long",
-                          ifelse(AllWQ$Site %in% DE_Long, "DE_Long",
-                          ifelse(AllWQ$Site %in% BD_Long, "BD_Long", "Wells"))))))))))))))))
+WQ$Stream <- as.factor(ifelse(WQ$Site %in% FMSites, "FM",
+                          ifelse(WQ$Site %in% FMSites_Branch, "FM_Branch",
+                          ifelse(WQ$Site %in% LFSites, "LF",
+                          ifelse(WQ$Site %in% MBSites, "MB",
+                          ifelse(WQ$Site %in% DESites, "DE",
+                          ifelse(WQ$Site %in% EFSites, "EF",
+                          ifelse(WQ$Site %in% BDSites, "BD",
+                          ifelse(WQ$Site %in% FM_TD, "FM_TD",
+                          ifelse(WQ$Site %in% LF_TD, "LF_TD",
+                          ifelse(WQ$Site %in% FM_Long, "FM_Long",
+                          ifelse(WQ$Site %in% LF_Long, "LF_Long",
+                          ifelse(WQ$Site %in% EF_Long, "EF_Long",
+                          ifelse(WQ$Site %in% MB_Long, "MB_Long",
+                          ifelse(WQ$Site %in% DE_Long, "DE_Long",
+                          ifelse(WQ$Site %in% BD_Long, "BD_Long", "Wells"))))))))))))))))
 
 
 mainSites = c('0', '1', '2', '4', '5', '6', '8', 
               '10', '11', '12', '14', '15', '16', '18', 
               '19', '20', '22', '23', '24', '25', '40', '41', '42')
 
-mainWQ <- WQ %>%
-  filter(Site %in% mainSites)
-
-
-mainWQ$Stream <- as.factor(ifelse(mainWQ$Site %in% FMSites, "FM",
-                           ifelse(mainWQ$Site %in% FMSites_Branch, "FM_Branch",
-                           ifelse(mainWQ$Site %in% LFSites, "LF",
-                           ifelse(mainWQ$Site %in% MBSites, "MB",
-                           ifelse(mainWQ$Site %in% DESites, "DE",
-                           ifelse(mainWQ$Site %in% EFSites, "EF", "BD")))))))
-
 WQ_Q <- Sample_Q %>%
   mutate(Date.Time=as.POSIXct(Date.Time, format = "%m/%d/%Y %H:%M", tz=Sys.timezone()),
          Date=as.Date(Date.Time),
          Date.Time = NULL)
 
-mainWQ <- mutate(mainWQ, DateStream= paste(as.character(Date), Stream))
+WQ <- mutate(WQ, DateStream= paste(as.character(Date), Stream))
 WQ_Q <- mutate(WQ_Q, DateStream= paste(as.character(Date), Stream))
 
-WQJoin <- mainWQ %>% left_join(WQ_Q, by = "DateStream",keep = FALSE) %>%
+WQJoin <- WQ %>% left_join(WQ_Q, by = "DateStream",keep = FALSE) %>%
   select(1:10,14) %>%
   rename(Date = 'Date.x', Stream = 'Stream.x')
 
+rm(WQ_Q, WQ)
+
 WQLoads <- WQJoin %>%
+  filter(Site %in% mainSites) %>%
   mutate(TN_Load = TN * Q,
          TP_Load = TP * Q,
          Nitrate_Load = Nitrate * Q,
@@ -85,7 +76,3 @@ WQLoads <- WQJoin %>%
 
 write.csv(WQJoin, "WQConcentrations.csv")
 write.csv(WQLoads, "WQLoads.csv")
-
-WQ_Sums <- WQ %>%
-  group_by(Site) %>%
-  summarise(n = n())

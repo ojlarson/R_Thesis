@@ -2,7 +2,7 @@ library(readr)
 library(tidyverse)
 Eqs <- read.csv("Equations.csv", fileEncoding = 'UTF-8-BOM')
 Q_MSMTS <- read.csv("Q_MSMTS.csv", fileEncoding = 'UTF-8-BOM')
-Samples <- read.csv("Sample_Date_Stages.csv", fileEncoding = 'UTF-8-BOM')
+Sample_Stages <- read.csv("Sample_Date_Stages.csv", fileEncoding = 'UTF-8-BOM')
 
 Sample_Q <- data.frame(matrix(ncol=4, nrow=0))
 colnames(Sample_Q) <- c('Date.Time', 'Stream', 'Stage', 'Q')
@@ -11,7 +11,7 @@ colnames(Sample_Q) <- c('Date.Time', 'Stream', 'Stage', 'Q')
 #--------------Four Mile--------------
 
 # Create Stream-specific dataframes
-FMS_Stage <- Samples %>%
+FMS_Stage <- Sample_Stages %>%
   select(1,2) %>%
   rename(Stage = FMS)
 FMS_Eqs <- Eqs %>%
@@ -63,9 +63,9 @@ FMSAll <- FMSAll %>%
 FM_All <- rbind(FMSAll, FM_MSMTS)
 
 #Create and save plot
-ggplot(data = FM_All) +
-  geom_point(mapping = aes(Q, Stage, color = Type)) +
-  labs(title = "FM")
+#ggplot(data = FM_All) +
+#  geom_point(mapping = aes(Q, Stage, color = Type)) +
+#  labs(title = "FM")
 #ggsave("Figs/FM_Stage_Revised.png")
 
 #Clean up workspace by deleting dataframes
@@ -74,7 +74,7 @@ rm(FMSLow, FMSMed, FMSHigh, FMSAll, FM_MSMTS, FMS_Breaks, FMS_Stage, FMS_Eqs, FM
 #--------------Little Four Mile--------
 
 # Create Stream-specific dataframes
-LFS_Stage <- Samples %>%
+LFS_Stage <- Sample_Stages %>%
   select(1,3) %>%
   rename(Stage = LFS)
 LFS_Eqs <- Eqs %>%
@@ -123,9 +123,9 @@ LFSAll <- LFSAll %>%
 LF_All <- rbind(LFSAll, LF_MSMTS)
 
 
-ggplot(data = LF_All) +
-  geom_point(mapping = aes(Q, Stage, color = Type)) +
-  labs(title = "LF")
+#ggplot(data = LF_All) +
+#  geom_point(mapping = aes(Q, Stage, color = Type)) +
+#  labs(title = "LF")
 #ggsave("Figs/LF_Stage.png")
 
 rm(LFSLow, LFSMed, LFSHigh, LFSAll, LF_MSMTS, LFS_Breaks, LFS_Stage, LFSWinXS, LFS_Eqs)
@@ -133,7 +133,7 @@ rm(LFSLow, LFSMed, LFSHigh, LFSAll, LF_MSMTS, LFS_Breaks, LFS_Stage, LFSWinXS, L
 #-------------Marshall's branch--------
 
 # Create Stream-specific dataframes
-MBS_Stage <- Samples %>%
+MBS_Stage <- Sample_Stages %>%
   select(1,4) %>%
   rename(Stage = MBS)
 MBS_Eqs <- Eqs %>%
@@ -177,9 +177,9 @@ MBSAll <- MBSAll %>%
 MB_All <- rbind(MBSAll, MB_MSMTS)
 
 #Create plot
-ggplot(data = MB_All) +
-  geom_point(mapping = aes(Q, Stage, color = Type)) +
-  labs(title = "MB")
+#ggplot(data = MB_All) +
+#  geom_point(mapping = aes(Q, Stage, color = Type)) +
+#  labs(title = "MB")
 #ggsave("Figs/MB_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -187,7 +187,7 @@ rm(MBSLow, MBSMed, MBSHigh, MBSAll, MB_MSMTS, MBS_Breaks, MBS_Stage, MBS_Eqs)
 
 #-----------------Deer's Ear-------
 # Create Stream-specific dataframes
-DES_Stage <- Samples %>%
+DES_Stage <- Sample_Stages %>%
   select(1,5) %>%
   rename(Stage = DE)
 DES_Eqs <- Eqs %>%
@@ -230,9 +230,9 @@ DESAll <- DESAll %>%
 DE_All <- rbind(DESAll, DE_MSMTS)
 
 #Create plot
-ggplot(data = DE_All) +
-  geom_point(mapping = aes(Q, Stage, color = Type)) +
-  labs(title = "DE")
+#ggplot(data = DE_All) +
+#  geom_point(mapping = aes(Q, Stage, color = Type)) +
+#  labs(title = "DE")
 #ggsave("Figs/DE_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -242,7 +242,7 @@ rm(DESLow, DESMed, DESHigh, DESAll, DE_MSMTS, DES_Breaks, DES_Stage, DES_Eqs)
 #--------------Below Dam--------------
 
 # Create Stream-specific dataframes
-BDS_Stage <- Samples %>%
+BDS_Stage <- Sample_Stages %>%
   select(1,6) %>%
   rename(Stage = BD)
 BDS_Eqs <- Eqs %>%
@@ -285,9 +285,9 @@ BDSAll <- BDSAll %>%
 BD_All <- rbind(BDSAll, BD_MSMTS)
 
 #Create and save plot
-ggplot(data = BD_All) +
-  geom_point(mapping = aes(Q, Stage, color = Type)) +
-  labs(title = "BD")
+#ggplot(data = BD_All) +
+#  geom_point(mapping = aes(Q, Stage, color = Type)) +
+#  labs(title = "BD")
 #ggsave("Figs/BD_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -297,7 +297,9 @@ rm(BDSLow, BDSMed, BDSHigh, BDSAll, BD_MSMTS, BDS_Breaks, BDS_Stage, BDS_Eqs)
 
 #Export Sample Qs to full dataset
 Sample_Q <- rbind(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample)
-rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample)
+
+rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample,
+   BD_All, DE_All, FM_All, LF_All, MB_All, Eqs, Q_MSMTS, Sample_Stages)
 
 #Export Sample_Q to csv
 write.csv(Sample_Q, 'Sample_Q.csv')
