@@ -1,8 +1,8 @@
-#Run All_Q first to get 'Sample_Q'
+Run All_Q first to get 'Sample_Q_Long'
 library(readr)
 library(googlesheets4)
 library(tidyverse)
-Sample_Q <- read.csv("Sample_Q.csv", fileEncoding = 'UTF-8-BOM')
+#Sample_Q <- read.csv("Sample_Q.csv", fileEncoding = 'UTF-8-BOM')
 WQ_sheet <- read_sheet("https://docs.google.com/spreadsheets/d/1-qtXWXC7bGvOgoFUOhLVjol8GZ5d-jruUyDezfAVw24/edit#gid=0")
 
 WQ <- WQ_sheet %>%
@@ -50,7 +50,7 @@ mainSites = c('0', '1', '2', '4', '5', '6', '8',
               '10', '11', '12', '14', '15', '16', '18', 
               '19', '20', '22', '23', '24', '25', '40', '41', '42')
 
-WQ_Q <- Sample_Q %>%
+WQ_Q <- Sample_Q_Long %>%
   mutate(Date.Time=as.POSIXct(Date.Time, format = "%m/%d/%Y %H:%M", tz=Sys.timezone()),
          Date=as.Date(Date.Time),
          Date.Time = NULL)
@@ -59,8 +59,8 @@ WQ <- mutate(WQ, DateStream= paste(as.character(Date), Stream))
 WQ_Q <- mutate(WQ_Q, DateStream= paste(as.character(Date), Stream))
 
 WQJoin <- WQ %>% left_join(WQ_Q, by = "DateStream",keep = FALSE) %>%
-  select(1:10,14) %>%
-  rename(Date = 'Date.x', Stream = 'Stream.x')
+  select(1:10,12) %>%
+ rename(Date = 'Date.x', Stream = 'Stream.x')
 
 rm(WQ_Q, WQ)
 
