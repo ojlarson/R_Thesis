@@ -47,10 +47,12 @@ FM_Sample <- FMSAll %>%
   relocate(Stage, Q,.after=last_col())
 EF_Sample <- FMSAll %>%
   mutate(Stream = 'EF',
-         Q = Q * 0.23031)
+         Q = Q * 0.23031) %>%
+  relocate(Stage, Q,.after=last_col())
 FM_Branch_Sample <- FMSAll %>%
   mutate(Stream = 'FM_Branch',
-         Q = Q * 0.76795)
+         Q = Q * 0.76795) %>%
+  relocate(Stage, Q,.after=last_col())
 
 #Bring in Q measurement data, tidy and bind with calculated Qs
 FM_MSMTS <- Q_MSMTS %>%
@@ -298,8 +300,43 @@ rm(BDSLow, BDSMed, BDSHigh, BDSAll, BD_MSMTS, BDS_Breaks, BDS_Stage, BDS_Eqs)
 #Export Sample Qs to full dataset
 Sample_Q <- rbind(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample)
 
+FM_Wide <- FM_Sample %>%
+  rename(FMQ = Q) %>%
+  select(1,4)
+EF_Wide <- EF_Sample %>%
+  rename(EFQ = Q) %>%
+  select(1,4)
+FM_Branch_Wide <- FM_Branch_Sample %>%
+  rename(FM_BranchQ = Q) %>%
+  select(1,4)
+LF_Wide <- LF_Sample %>%
+  rename(LFQ = Q) %>%
+  select(1,4)
+MB_Wide <- MB_Sample %>%
+  rename(MBQ = Q) %>%
+  select(1,4)
+DE_Wide <- DE_Sample %>%
+  rename(DEQ = Q) %>%
+  select(1,4)
+BD_Wide <- BD_Sample %>%
+  rename(BDQ = Q) %>%
+  select(1,4)
+
+Sample_Q_Wide_List <- list(FM_Wide, EF_Wide, FM_Branch_Wide, LF_Wide, MB_Wide, DE_Wide, BD_Wide)
+
+Sample_Q_Wide <- Sample_Q_Wide_List %>% reduce(full_join, by='Date.Time') %>%
+  mutate(DEQ = if_else(is.na(DEQ), MBQ * .754799, DEQ),
+         LFQ = if_else(is.na(LFQ), FMQ * .604106, LFQ),
+         Date.Time=as.POSIXct(Date.Time, format = "%m/%d/%Y %H:%M", tz=Sys.timezone())) %>%
+  arrange(Date.Time)
+
+Sample_Q_Long <- Sample_Q_Wide
+colnames(Sample_Q_Long) <- (c("Date.Time", "FM", "EF", "FM_Branch", "LF" , "MB", "DE", "BD")) #%>%
+Sample_Q_Long <- pivot_longer(data = Sample_Q_Long, cols = 2:8, names_to = "Stream", values_to = "Q")
+
 rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample,
-   BD_All, DE_All, FM_All, LF_All, MB_All, Eqs, Q_MSMTS, Sample_Stages)
+   BD_All, DE_All, FM_All, LF_All, MB_All, Eqs, Q_MSMTS, Sample_Stages,
+   Sample_Q_Wide_List, FM_Wide, EF_Wide, FM_Branch_Wide, LF_Wide, MB_Wide, DE_Wide, BD_Wide)
 
 #Export Sample_Q to csv
 write.csv(Sample_Q, 'Sample_Q.csv')
