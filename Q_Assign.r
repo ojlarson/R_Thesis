@@ -1,4 +1,4 @@
-Run All_Q first to get 'Sample_Q_Long'
+#Run All_Q first to get 'Sample_Q_Long'
 library(readr)
 library(googlesheets4)
 library(tidyverse)
