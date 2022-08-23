@@ -328,16 +328,19 @@ Sample_Q_Wide <- Sample_Q_Wide_List %>% reduce(full_join, by='Date.Time') %>%
   mutate(DEQ = if_else(is.na(DEQ), MBQ * .754799, DEQ),
          LFQ = if_else(is.na(LFQ), FMQ * .604106, LFQ),
          Date.Time=as.POSIXct(Date.Time, format = "%m/%d/%Y %H:%M", tz=Sys.timezone())) %>%
-  arrange(Date.Time)
+  arrange(Date.Time) %>%
+  filter(Date.Time != "2019-12-08 09:59:00")
 
 Sample_Q_Long <- Sample_Q_Wide
 colnames(Sample_Q_Long) <- (c("Date.Time", "FM", "EF", "FM_Branch", "LF" , "MB", "DE", "BD")) #%>%
-Sample_Q_Long <- pivot_longer(data = Sample_Q_Long, cols = 2:8, names_to = "Stream", values_to = "Q")
+Sample_Q_Long <- pivot_longer(data = Sample_Q_Long, cols = 2:8, names_to = "Stream", values_to = "Q") %>%
+  arrange(Stream)
 
 rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample,
    BD_All, DE_All, FM_All, LF_All, MB_All, Eqs, Q_MSMTS, Sample_Stages,
    Sample_Q_Wide_List, FM_Wide, EF_Wide, FM_Branch_Wide, LF_Wide, MB_Wide, DE_Wide, BD_Wide)
 
 #Export Sample_Q to csv
-write.csv(Sample_Q, 'Sample_Q.csv')
+write.csv(Sample_Q_Long, 'Sample_Q_Long.csv')
+write.csv(Sample_Q_Wide, 'Sample_Q_Wide.csv')
 
