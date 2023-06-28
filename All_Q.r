@@ -2,8 +2,19 @@ library(readr)
 library(tidyverse)
 Eqs <- read.csv("Equations.csv", fileEncoding = 'UTF-8-BOM')
 Q_MSMTS <- read.csv("Q_MSMTS.csv", fileEncoding = 'UTF-8-BOM')
-Sample_Stages <- read.csv("Sample_Date_Stages.csv", fileEncoding = 'UTF-8-BOM')
 
+# Function to try different date formats
+convert_date <- function(date_str) {
+  date <- as.Date(date_str, format="%m/%d/%Y")
+  if(is.na(date)) {
+    date <- as.Date(paste0(date_str, "-2021"), format="%d-%b-%Y")
+  }
+  return(date)
+}
+Q_MSMTS$Date <- sapply(Q_MSMTS$Date, convert_date)
+Q_MSMTS$Date <- as.Date(Q_MSMTS$Date, origin = "1970-01-01")
+
+Sample_Stages <- read.csv("Sample_Date_Stages.csv", fileEncoding = 'UTF-8-BOM')
 Sample_Q <- data.frame(matrix(ncol=4, nrow=0))
 colnames(Sample_Q) <- c('Date.Time', 'Stream', 'Stage', 'Q')
 
@@ -62,12 +73,13 @@ FM_MSMTS <- Q_MSMTS %>%
 FMSAll <- FMSAll %>%
   mutate(Type = 'Sample',
          Date.Time = NULL)
-FM_All <- rbind(FMSAll, FM_MSMTS)
+FM_All <- rbind(FMSAll, FM_MSMTS)%>%
+  mutate(Stream = 'FM')
 
 #Create and save plot
-#ggplot(data = FM_All) +
-#  geom_point(mapping = aes(Q, Stage, color = Type)) +
-#  labs(title = "FM")
+ggplot(data = FM_All) +
+  geom_point(mapping = aes(Q, Stage, color = Type)) +
+  labs(title = "FM")
 #ggsave("Figs/FM_Stage_Revised.png")
 
 #Clean up workspace by deleting dataframes
@@ -122,12 +134,13 @@ LF_MSMTS <- Q_MSMTS %>%
 LFSAll <- LFSAll %>%
   mutate(Type = 'Sample',
          Date.Time = NULL)
-LF_All <- rbind(LFSAll, LF_MSMTS)
+LF_All <- rbind(LFSAll, LF_MSMTS) %>%
+  mutate(Stream = 'LF')
 
 
-#ggplot(data = LF_All) +
-#  geom_point(mapping = aes(Q, Stage, color = Type)) +
-#  labs(title = "LF")
+ggplot(data = LF_All) +
+  geom_point(mapping = aes(Q, Stage, color = Type)) +
+  labs(title = "LF")
 #ggsave("Figs/LF_Stage.png")
 
 rm(LFSLow, LFSMed, LFSHigh, LFSAll, LF_MSMTS, LFS_Breaks, LFS_Stage, LFSWinXS, LFS_Eqs)
@@ -176,12 +189,13 @@ MB_MSMTS <- Q_MSMTS %>%
 MBSAll <- MBSAll %>%
   mutate(Type = 'Sample',
          Date.Time = NULL)
-MB_All <- rbind(MBSAll, MB_MSMTS)
+MB_All <- rbind(MBSAll, MB_MSMTS) %>%
+  mutate(Stream = 'MB')
 
 #Create plot
-#ggplot(data = MB_All) +
-#  geom_point(mapping = aes(Q, Stage, color = Type)) +
-#  labs(title = "MB")
+ggplot(data = MB_All) +
+  geom_point(mapping = aes(Q, Stage, color = Type)) +
+  labs(title = "MB")
 #ggsave("Figs/MB_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -229,12 +243,13 @@ DE_MSMTS <- Q_MSMTS %>%
 DESAll <- DESAll %>%
   mutate(Type = 'Sample',
          Date.Time = NULL)
-DE_All <- rbind(DESAll, DE_MSMTS)
+DE_All <- rbind(DESAll, DE_MSMTS) %>%
+  mutate(Stream = 'DE')
 
 #Create plot
-#ggplot(data = DE_All) +
-#  geom_point(mapping = aes(Q, Stage, color = Type)) +
-#  labs(title = "DE")
+ggplot(data = DE_All) +
+  geom_point(mapping = aes(Q, Stage, color = Type)) +
+  labs(title = "DE")
 #ggsave("Figs/DE_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -284,12 +299,13 @@ BD_MSMTS <- Q_MSMTS %>%
 BDSAll <- BDSAll %>%
   mutate(Type = 'Sample',
          Date.Time = NULL)
-BD_All <- rbind(BDSAll, BD_MSMTS)
+BD_All <- rbind(BDSAll, BD_MSMTS) %>%
+  mutate(Stream = 'BD')
 
 #Create and save plot
-#ggplot(data = BD_All) +
-#  geom_point(mapping = aes(Q, Stage, color = Type)) +
-#  labs(title = "BD")
+ggplot(data = BD_All) +
+  geom_point(mapping = aes(Q, Stage, color = Type)) +
+  labs(title = "BD")
 #ggsave("Figs/BD_Stage.png")
 
 #Clean up workspace by deleting dataframes
@@ -336,9 +352,45 @@ colnames(Sample_Q_Long) <- (c("Date.Time", "FM", "EF", "FM_Branch", "LF" , "MB",
 Sample_Q_Long <- pivot_longer(data = Sample_Q_Long, cols = 2:8, names_to = "Stream", values_to = "Q") %>%
   arrange(Stream)
 
+All_Q <- rbind(FM_All, LF_All, MB_All, DE_All, BD_All) %>%
+  mutate(Stream = recode(Stream, 
+                         "BD" = "Below Dam",
+                         "DE" = "Deer's Ear",
+                         "FM" = "Four Mile",
+                         "LF" = "Little Four Mile",
+                         "MB" = "Marshall's Branch"))
+
 rm(FM_Sample, LF_Sample, MB_Sample, DE_Sample, BD_Sample, EF_Sample, FM_Branch_Sample,
    BD_All, DE_All, FM_All, LF_All, MB_All, Eqs, Q_MSMTS, Sample_Stages,
    Sample_Q_Wide_List, FM_Wide, EF_Wide, FM_Branch_Wide, LF_Wide, MB_Wide, DE_Wide, BD_Wide)
+
+create_plot <- function(data, stream_category) {
+  # Filter the data for the given stream category
+  data <- data[data$Stream == stream_category,]
+  
+  # Create the plot
+  plot <- ggplot(data = data) +
+    geom_point(mapping = aes(x = Q, y = Stage, color = Type)) +
+    labs(title = stream_category,
+         x = expression(paste("Discharge (m"^3, "/s)")),
+         y = "Stage (m)") +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14),
+      #legend.position = 'none'
+    ) +
+    labs(x = NULL, y = NULL)
+  
+  return(plot)
+}
+
+for (i in unique(All_Q$Stream)) {
+  print(create_plot(All_Q, i))
+}
+
+create_plot(All_Q, 'LF')
 
 #Export Sample_Q to csv
 write.csv(Sample_Q_Long, 'Sample_Q_Long.csv')
