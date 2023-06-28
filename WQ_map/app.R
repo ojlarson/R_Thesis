@@ -18,7 +18,7 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
     sample_points <- reactive({
-      st_read("sample_points.geojson")
+      st_read("/Users/ojlarson/Documents/Thesis/R_Thesis/sample_points.geojson")
     })
     
     filteredData <- reactive({
@@ -51,23 +51,4 @@ server <- function(input, output, session) {
     })
 }
 
-# Server
-server <- function(input, output, session) {
-  # Load the GeoJSON data
-  points_data <- reactive({
-    st_read("points.geojson")
-  })
-  
-  # Reactive expression for the data to be shown or hidden
-  filteredData <- reactive({
-    if (input$showPoints) {
-      data <- points_data()
-      data$lon <- as.numeric(st_coordinates(data)[, 1])
-      data$lat <- as.numeric(st_coordinates(data)[, 2])
-      return(data)
-    } else {
-      return(NULL)
-    }
-  })
-}
 shinyApp(ui = ui, server = server)
